@@ -6,7 +6,9 @@
 [![live demo](https://img.shields.io/badge/demo-play%20it%20in%20your%20browser-f2a53c)](https://egnaro9.github.io/match3-engine/)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**The match-3 rules engine from a shipping Android game — extracted, dependency-free, and pinned down by 16 property-based invariants.**
+**The match-3 rules engine from a real Android game I built — extracted, dependency-free, and pinned down by 16 property-based invariants.**
+
+*(The game is pre-launch; this library is the logic layer lifted out of it.)*
 
 This is the real logic layer of [Hero Gem](https://egnaro9.github.io), a React/Capacitor game where a pure-Java engine on-device is the authority and the web layer is just the renderer. It's lifted out here as a standalone library so you can read it and run its tests without an Android SDK, an emulator, or a device:
 
@@ -29,7 +31,7 @@ Zero dependencies outside the JDK. ~570 lines of engine, **1,200+ lines of tests
 
 Example tests check the boards you thought of. Match-3 breaks on the boards you didn't: the L that's also a T, the run clipped by the wall, the color bomb that forgets to consume itself, the blocker sitting mid-run.
 
-So the suite has two halves. 35 **example tests** nail down specific known shapes (3/4/5-in-row, L, T, cross, blocker-broken runs, edge-clipped activations). 16 **[jqwik](https://jqwik.net/) property tests** then assert *invariants* — statements that must hold for **every** board — against generated boards, and jqwik shrinks any counterexample to a minimal failing case.
+So the suite has two halves. 43 **example tests** nail down specific known shapes (3/4/5-in-row, L, T, cross, blocker-broken runs, edge-clipped activations). 16 **[jqwik](https://jqwik.net/) property tests** then assert *invariants* — statements that must hold for **every** board — against generated boards, and jqwik shrinks any counterexample to a minimal failing case.
 
 The generator is deliberately **biased**: a uniformly random 8×8 board almost never contains an interesting match, so it plants horizontal/vertical runs and L/T shapes on purpose. An unbiased generator would pass every property while testing nothing.
 
@@ -119,7 +121,7 @@ Everything is `static`; `Gem` is immutable. That's what makes `deepCopy` a per-r
 
 This is a **one-time extraction, not a live mirror** — it has deliberately diverged from the game (a `LevelConfig` value type, no Capacitor serializer, the monotonic id counter, `markMatched`). Don't assume the two are in sync.
 
-Faithfully lifted from the shipping game, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The tests are unmodified apart from that rename — they're the same 51 that guard the engine in production.
+Faithfully lifted from the game, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The tests are unmodified apart from that rename — they're the same 51 that guard the engine in the app.
 
 ---
 

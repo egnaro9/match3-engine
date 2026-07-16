@@ -3,7 +3,7 @@ package io.github.egnaro9.match3;
 /**
  * Board-generation parameters.
  *
- * <p>In the shipping game these arrive as JSON from the level definition. The
+ * <p>In the game these arrive as JSON from the level definition. The
  * engine takes them as a plain value type instead, which is what keeps it free
  * of any JSON or platform dependency — the serialization boundary belongs to
  * the caller, not the rules.
