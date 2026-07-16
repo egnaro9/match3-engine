@@ -17,6 +17,24 @@ public final class BoardEngine {
 
     private static final Random RNG = new Random();
 
+    /**
+     * Monotonic source of unique gem ids.
+     *
+     * <p>These ids are identity keys for the renderer, so collisions are not
+     * cosmetic — two gems sharing an id animate as one. The obvious
+     * {@code nanoTime() + random} scheme is only <em>probabilistically</em>
+     * unique, and how probable depends on the clock underneath: a JVM's
+     * high-resolution timer hides the flaw, while a browser clamps its clock
+     * (~100µs, a Spectre mitigation) and the same code collides hundreds of
+     * times per 100k gems. A counter is unconditionally unique on every clock,
+     * so the guarantee stops depending on the platform.
+     */
+    private static long idSeq = 0L;
+
+    private static synchronized long nextId() {
+        return idSeq++;
+    }
+
     // ── Copy helpers ──────────────────────────────────────────────────────────
 
     // Gem objects are immutable, so a per-row System.arraycopy is a full deep copy.
@@ -225,7 +243,7 @@ public final class BoardEngine {
             board = new GameBoard.Gem[GameBoard.BOARD_SIZE][GameBoard.BOARD_SIZE];
             for (int row = 0; row < GameBoard.BOARD_SIZE; row++) {
                 for (int col = 0; col < GameBoard.BOARD_SIZE; col++) {
-                    String id = row + "-" + col + "-" + System.nanoTime() + "-" + RNG.nextInt(1000);
+                    String id = row + "-" + col + "-" + nextId();
                     boolean isBlocker = config.blockerProbability > 0
                             && RNG.nextDouble() < config.blockerProbability;
                     if (isBlocker) {
@@ -318,6 +336,34 @@ public final class BoardEngine {
         }
 
         return matches;
+    }
+
+    /**
+     * Flag every position in {@code keys} as matched, returning a new board.
+     *
+     * <p>Closes the loop between the two halves of a turn: {@link #findMatches}
+     * <em>reports</em> what matched, {@link #applyGravityAndRefill} <em>reads</em>
+     * the {@code matched} flag — but nothing public could set it, so a caller
+     * outside this package couldn't get from one to the other. (The shipping
+     * game does this step in its own layer, which is how the gap went unnoticed.)
+     *
+     * @param keys positions as {@code "row-col"} — i.e. the key set of {@link #findMatches}
+     */
+    public static GameBoard.Gem[][] markMatched(GameBoard.Gem[][] board, Iterable<String> keys) {
+        GameBoard.Gem[][] nb = deepCopy(board);
+        for (String key : keys) {
+            int dash = key.indexOf('-');
+            if (dash <= 0) continue;
+            try {
+                int r = Integer.parseInt(key.substring(0, dash));
+                int c = Integer.parseInt(key.substring(dash + 1));
+                if (r < 0 || r >= GameBoard.BOARD_SIZE || c < 0 || c >= GameBoard.BOARD_SIZE) continue;
+                if (!nb[r][c].blocker) nb[r][c] = withMatched(nb[r][c]);
+            } catch (NumberFormatException ignored) {
+                // not a coordinate key — skip it rather than fail the whole board
+            }
+        }
+        return nb;
     }
 
     /** Swap two positions unconditionally. Validation is the caller's job. */
@@ -444,7 +490,7 @@ public final class BoardEngine {
                 if (!board[row][col].matched) kept.add(board[row][col]);
             }
             while (kept.size() < GameBoard.BOARD_SIZE) {
-                String id = "n-" + col + "-" + System.nanoTime() + "-" + RNG.nextInt(1000);
+                String id = "n-" + col + "-" + nextId();
                 kept.add(new GameBoard.Gem(BASE_TYPES[RNG.nextInt(BASE_TYPES.length)],
                     id, false, animateFall, null, false, 0, false));
             }

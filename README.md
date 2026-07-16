@@ -3,6 +3,7 @@
 [![ci](https://github.com/egnaro9/match3-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/egnaro9/match3-engine/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://openjdk.org/)
 [![tests](https://img.shields.io/badge/tests-51%20(35%20example%20%2B%2016%20property)-brightgreen)](src/test/java/io/github/egnaro9/match3)
+[![live demo](https://img.shields.io/badge/demo-play%20it%20in%20your%20browser-f2a53c)](https://egnaro9.github.io/match3-engine/)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 **The match-3 rules engine from a shipping Android game — extracted, dependency-free, and pinned down by 16 property-based invariants.**
@@ -11,10 +12,16 @@ This is the real logic layer of [Hero Gem](https://egnaro9.github.io), a React/C
 
 ```bash
 git clone https://github.com/egnaro9/match3-engine && cd match3-engine
-./gradlew test        # 51 tests, ~2 seconds, zero setup
+./gradlew test        # 59 tests, ~2 seconds, zero setup
 ```
 
-Zero dependencies outside the JDK. 522 lines of engine, **1,078 lines of tests** — the ratio is the point.
+### ▶ [Play it in your browser](https://egnaro9.github.io/match3-engine/)
+
+The engine compiles to JavaScript with [TeaVM](https://teavm.org) (~50 KB gzipped), so you can **play a real board driven by this Java** — it decides every match, every special, every refill. The compiler config lives in a separate `demo-js` module, so the library keeps its zero-dependency guarantee.
+
+Zero dependencies outside the JDK. ~570 lines of engine, **1,200+ lines of tests** — the ratio is the point.
+
+> **What porting it found.** Gem ids were minted from `System.nanoTime()` + a random number. On a JVM that's fine — 128,000 gems, zero collisions. Browsers clamp their clock (~100µs, a Spectre mitigation), so `nanoTime` barely advances and the same code produced **301 duplicate ids per 128,000 gems**. Those ids are renderer identity keys, so collisions mean gems animating as one. It's now a monotonic counter — uniqueness that doesn't depend on the platform's clock. Running the same code somewhere new is what exposed it; the JVM alone never could.
 
 ---
 

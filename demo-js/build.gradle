@@ -1,0 +1,34 @@
+// Compiles the engine to JavaScript with TeaVM for the browser demo.
+//
+// This lives in its own module on purpose: the published library must keep its
+// zero-dependencies-outside-the-JDK guarantee, so the TeaVM/JSO dependency and
+// the @JSExport wrapper stay here rather than leaking into the core jar.
+plugins {
+    id 'java'
+    id 'org.teavm' version '0.15.0'
+}
+
+repositories { mavenCentral() }
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+dependencies {
+    implementation rootProject          // the engine itself
+    implementation teavm.libs.jso
+}
+
+teavm {
+    js {
+        // Library mode: everything is exported via @JSExport and there is no
+        // main() — but the Gradle plugin still requires mainClass to be set, so
+        // point it at the wrapper.
+        mainClass = "io.github.egnaro9.match3.js.Match3Js"
+        moduleType = org.teavm.gradle.api.JSModuleType.ES2015
+        targetFileName = "match3.js"
+        obfuscated = true
+        sourceMap = false
+        strict = true
+    }
+}
