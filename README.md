@@ -10,7 +10,7 @@
 
 *(The game is pre-launch; this library is the logic layer lifted out of it.)*
 
-This is the real logic layer of [Hero Gem](https://egnaro9.github.io), a React/Capacitor game where a pure-Java engine on-device is the authority and the web layer is just the renderer. It's lifted out here as a standalone library so you can read it and run its tests without an Android SDK, an emulator, or a device:
+This is the real logic layer of an unreleased React/Capacitor game I built, where a pure-Java engine on-device is the authority and the web layer is just the renderer. It's lifted out here as a standalone library so you can read it and run its tests without an Android SDK, an emulator, or a device:
 
 ```bash
 git clone https://github.com/egnaro9/match3-engine && cd match3-engine
