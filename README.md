@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/egnaro9/match3-engine/actions/workflows/ci.yml/badge.svg)](https://github.com/egnaro9/match3-engine/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://openjdk.org/)
-[![tests](https://img.shields.io/badge/tests-51%20(35%20example%20%2B%2016%20property)-brightgreen)](src/test/java/io/github/egnaro9/match3)
+[![tests](https://img.shields.io/badge/tests-59%20(43%20example%20%2B%2016%20property)-brightgreen)](src/test/java/io/github/egnaro9/match3)
 [![live demo](https://img.shields.io/badge/demo-play%20it%20in%20your%20browser-f2a53c)](https://egnaro9.github.io/match3-engine/)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
