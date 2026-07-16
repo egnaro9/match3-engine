@@ -1,0 +1,44 @@
+// A plain java-library module: no Android SDK, no emulator, no device.
+// `./gradlew test` runs the whole suite on any JDK 17+.
+plugins {
+    id 'java-library'
+}
+
+group = 'io.github.egnaro9'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    // Example tests are JUnit 4; property tests are jqwik (JUnit 5 Platform).
+    // The vintage engine lets both run in one `test` task.
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'net.jqwik:jqwik:1.8.4'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.10.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        showStandardStreams = false
+    }
+    afterSuite { desc, result ->
+        if (!desc.parent) {
+            println "\n${result.resultType}: ${result.testCount} tests " +
+                    "(${result.successfulTestCount} passed, ${result.failedTestCount} failed, " +
+                    "${result.skippedTestCount} skipped)"
+        }
+    }
+}
