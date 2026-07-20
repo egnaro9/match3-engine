@@ -6,11 +6,11 @@
 [![live demo](https://img.shields.io/badge/demo-play%20it%20in%20your%20browser-f2a53c)](https://egnaro9.github.io/match3-engine/)
 [![license](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-**The match-3 rules engine from a real Android game I built — extracted, dependency-free, and pinned down by 16 property-based invariants.**
+**A match-3 rules engine extracted from a real production codebase — dependency-free, and pinned down by 16 property-based invariants.**
 
-*(The game is pre-launch; this library is the logic layer lifted out of it.)*
+*(The logic layer, lifted out as a standalone, readable library.)*
 
-This is the real logic layer of an unreleased React/Capacitor game I built, where a pure-Java engine on-device is the authority and the web layer is just the renderer. It's lifted out here as a standalone library so you can read it and run its tests without an Android SDK, an emulator, or a device:
+This is the real logic layer of a production application, where a pure-Java engine on-device is the authority and the UI layer is just a renderer. It's lifted out here as a standalone library so you can read it and run its tests without an Android SDK, an emulator, or a device:
 
 ```bash
 git clone https://github.com/egnaro9/match3-engine && cd match3-engine
@@ -110,7 +110,7 @@ Everything is `static`; `Gem` is immutable. That's what makes `deepCopy` a per-r
 
 - **Why immutable gems?** The engine answers "would this swap match?" constantly (`hasAnyValidMove` alone runs it ~112× per call). With immutable cells, a board copy is a shallow row copy and speculation has no side effects to unwind.
 - **Why two match predicates?** `checkMatchAt` scans both directions; `hasMatchAt`/`wouldMatch` only look backward. Generation fills top-left → bottom-right, so the cells *ahead* don't exist yet — looking forward there would read unfilled state. Subtle, and exactly the kind of thing A4 exists to police.
-- **What's not here.** The cascade loop, special-gem creation rules, and scoring live in the app's Capacitor plugin, welded to `SoundPool`/`Vibrator`/`Handler`. This library is the stateless primitives those rules are built from. Lifting the cascade out behind a listener interface is the natural next step — it would make the app's rules testable the same way these are.
+- **What's not here.** The cascade loop, special-gem creation rules, and scoring live in the application layer, welded to platform services. This library is the stateless primitives those rules are built from. Lifting the cascade out behind a listener interface is the natural next step — it would make those rules testable the same way these are.
 
 ## Porting notes (if you compile this to JS yourself)
 
@@ -119,9 +119,9 @@ Everything is `static`; `Gem` is immutable. That's what makes `deepCopy` a per-r
 
 ## Extraction notes
 
-This is a **one-time extraction, not a live mirror** — it has deliberately diverged from the game (a `LevelConfig` value type, no Capacitor serializer, the monotonic id counter, `markMatched`). Don't assume the two are in sync.
+This is a **one-time extraction, not a live mirror** — it has deliberately diverged from the original (a `LevelConfig` value type, no Capacitor serializer, the monotonic id counter, `markMatched`). Don't assume the two are in sync.
 
-Faithfully lifted from the game, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The tests are unmodified apart from that rename — they're the same 51 that guard the engine in the app.
+Faithfully lifted from the original, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The tests are unmodified apart from that rename — they're the same 51 that guard the engine in the original application.
 
 ---
 
