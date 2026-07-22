@@ -115,13 +115,13 @@ Everything is `static`; `Gem` is immutable. That's what makes `deepCopy` a per-r
 ## Porting notes (if you compile this to JS yourself)
 
 - **Seeded `Random.nextInt(bound)` diverges between TeaVM and the JVM.** TeaVM's `Random` doesn't override the bounded variant, so it inherits Java 17's `RandomGenerator` default (mask-and-reject) while the JVM uses `Random`'s legacy `% bound`. `nextInt()`, `nextLong()`, `nextDouble()` and `nextBoolean()` are bit-exact. Irrelevant when the RNG is unseeded (as it is here), but it would silently break **seed-locked JVM-vs-JS differential testing** — if you ever want that, inject the RNG and derive bounded draws from `nextInt()` yourself rather than trusting `nextInt(bound)` to match.
-- **Don't rely on the clock for identity.** See the gem-id note above: this is the general form of that lesson.
+- **Don't rely on the clock for identity.** See the gem-id note above: this is the general form of that lesson. Full worked example — how the JVM-vs-TeaVM split surfaced it (0 vs 301 duplicate ids over 128k gems) — in [the field note](docs/field-notes/gem-ids-301-vs-0.md).
 
 ## Extraction notes
 
 This is a **one-time extraction, not a live mirror** — it has deliberately diverged from the original (a `LevelConfig` value type, no Capacitor serializer, the monotonic id counter, `markMatched`). Don't assume the two are in sync.
 
-Faithfully lifted from the original, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The tests are unmodified apart from that rename — they're the same 51 that guard the engine in the original application.
+Faithfully lifted from the original, with three changes: the Capacitor `JSArray` serializer was dropped (serialization belongs to the plugin layer, not the rules), `createBoard` takes a `LevelConfig` value type instead of a `JSONObject` (which is what removes the last non-JDK dependency), and the package was renamed. The original tests are unmodified apart from that rename — the same 51 that guard the engine in the original application — and this extraction adds 8 for its own divergences (`IdUniquenessTest` ×3 for the monotonic id counter, `MarkMatchedTest` ×5 for `markMatched`), **59 in total**.
 
 ---
 
